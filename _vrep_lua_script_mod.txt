@@ -1,0 +1,18 @@
+
+    local data=simGetStringSignal('objectIdAndForce')
+    if data and #data>=16 then
+        local stuff = sim.unpackFloatTable(data, 0, 4)
+        -- sim.addStatusbarMessage(data)
+        sim.addStatusbarMessage(tostring(stuff[1]))
+        sim.addStatusbarMessage(tostring(stuff[2]))
+        sim.addStatusbarMessage(tostring(stuff[3]))
+        sim.addStatusbarMessage(tostring(stuff[4]))
+        -- particlesTargetVelocities=stuff
+        thrust = stuff[1]
+        alphaCorr = stuff[2] -- roll?
+        betaCorr = stuff[3]  -- pitch ?
+        rotCorr = stuff[4]   -- yaw?
+            -- simAddForceAndTorque(objectId,force,{0,0,0})
+    end
+   
+

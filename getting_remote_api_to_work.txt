@@ -1,0 +1,31 @@
+# copy sample scripts into workspace
+cp ~/V-REP/programming/remoteApiBindings/python/python/* .
+
+# copy library 
+cp ~/V-REP/programming/remoteApiBindings/lib/lib/Linux/64Bit/remoteApi.so .
+
+
+# set port to 19999 in V-REP/remoteApiConnections.txt
+# run the test script 
+python simpleTest.py
+# or our main controller 
+
+
+# C/C++ client
+# just include the following files in your project
+extApi.h
+extApi.c
+extApiPlatform.h
+extApiPlatform.c 
+# * from V-REP/programming/remoteApi/
+
+
+# Access V-REP objects from unassociated (remote api or ros node) code
+# c/c++ plugin
+int cuboid1Handle = simGetObjectHandle("Cuboid1");
+int cuboid2Handle = simGetObjectHandle("Cuboid2");
+int cuboid1Hash0Handle = simGetObjectHandle("Cuboid1#0")
+int ikGroupHash42Handle = simGetIkGroupHandle("iikGroup#42")
+# python remote api client
+res, c1handle = vrep.simxGetObjectHandle(client_id, "Cuboid1", vrep.simx_opmode_blocking)
+
