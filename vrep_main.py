@@ -1,6 +1,8 @@
 import time 
 import sys 
 import os
+import numpy as np
+import matplotlib as mlp
 
 try:
     import vrep
@@ -30,8 +32,14 @@ def init_vrep_connection_or_die():
     if res != vrep.simx_return_ok:
         print 'Could not GetObjectHandle: Quadricopter_base'
         sys.exit('Failed to grab Quadricopter_base handle')
-    print quad_handle
-    print ('grabbed Quadricopter_base handle ')
+    print ('grabbed Quadricopter_base handle ', quad_handle)
+    # ------------------------------------------------------
+    res, cam_handle = vrep.simxGetObjectHandle(client_id, "CAMERA_ID", vrep.simx_opmode_blocking)
+    if res != simx_return_ok:
+        print "Could not access camera object."
+        sys.exit('Failed to access V-REP Vision Sensor Object')
+    print ('recieved camera object handle', cam_handle)
+    # ------------------------------------------------------
 
 # takes a float array of rotor velocities
 def set_propeller_velocities(prop_vel):
@@ -48,38 +56,6 @@ def setpoint(thrust, roll, pitch, yaw):
 def setpoint_(trpy):
     setpoint(trpy[0], trpy[1], trpy[2], trpy[3])
 
-stream_flag = False
-
-def get_quad_pose():
-    
-    """
-    global stream_flag
-    if stream_flag==False: 
-        opmode = vrep.simx_opmode_streaming
-        stream_flag = True
-    else: 
-        opmode = vrep.simx_opmode_buffer
-    """
-    opmode = vrep.simx_opmode_blocking
-    # -1 specifies pose relative to global coordinate frame
-    ret, pos = vrep.simxGetObjectPosition(client_id, quad_handle, -1, opmode)
-    ret, eul = vrep.simxGetObjectOrientation(client_id, quad_handle, -1, opmode)
-
-    print "position: ", pos
-    print "orientation: ", eul
-
-def pos_update():
-    global quad_handle 
-    print quad_handle
-    while vrep.simxGetConnectionId(client_id) != -1: # while we are still connected to the server 
-        ret, pos = vrep.simxGetObjectPosition(client_id, quad_handle, vrep.sim_handle_parent, vrep.simx_opmode_blocking)
-        if (ret == vrep.simx_return_ok):
-            print pos
-        else:
-            print 'position not initialized'
-        time.sleep(0.3)
-    
-
 if __name__ == "__main__":
     init_vrep_connection_or_die()
     #start_state_estimation()
@@ -95,6 +71,12 @@ if __name__ == "__main__":
             quad_handle, 
             -1, 
             vrep.simx_opmode_streaming)
+    err, res, image = vrep.simxGetVisionSensorImage(
+            client_id, 
+            cam_handle, 
+            0, 
+            vrep.simx_opmode_buffer)
+
 
     while True:
         # get_quad_pose()
@@ -110,6 +92,11 @@ if __name__ == "__main__":
                 quad_handle, 
                 -1, 
                 vrep.simx_opmode_streaming)
+        ret_i, res, image = vrep.simxGetVisionSensorImage(
+                client_id, 
+                cam_handle, 
+                0, 
+                vrep.simx_opmode_buffer)
 
         if ret_p == vrep.simx_return_ok:
             print 'pos: ', pos
@@ -120,6 +107,11 @@ if __name__ == "__main__":
             print 'eul: ', eul
         else:
             print 'orientation not initialized'
+        
+        if ret_i == vrep.simx_return_ok:
+            print "got an image!"
+        else:
+            print "image not initialized"
 
         time.sleep(0.1)
 
