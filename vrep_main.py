@@ -23,6 +23,9 @@ process = None
 def start_vrep_subprocess_or_die(vrep_path="/home/thomas/V-REP/"):
     global process
     vrep_script = os.path.join(vrep_path, "vrep.sh")
+    if not os.path.exists(vrep_script):
+        print "vrep.sh script is not at \"{0}\". cannot start simulator".format(vrep_path)
+        sys.exit("failed to start simulator process")
     process = subprocess.Popen(["bash", vrep_script, "-h"])
     print("Initializing V-REP!")
     time.sleep(7.0)
