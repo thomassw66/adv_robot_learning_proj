@@ -23,7 +23,7 @@ process = None
 def start_vrep_subprocess_or_die(vrep_path="/home/thomas/V-REP/"):
     global process
     vrep_script = os.path.join(vrep_path, "vrep.sh")
-    process = subprocess.Popen(["bash", vrep_script])
+    process = subprocess.Popen(["bash", vrep_script, "-h"])
     print("Initializing V-REP!")
     time.sleep(7.0)
 
@@ -117,6 +117,14 @@ goal =  np.array([0.0, 0.0, 0.0])
 timestep = 0
 max_timesteps = 100
 
+env_bound = [(-10.0, -10.0, 0.09), (10.0, 10.0, 10.0)]
+def check_pos_in_bound(pos):
+    global env_bound
+    low, up= env_bound
+    return pos[0] > low[0] and pos[0] < up[0] and \
+            pos[1] > low[1] and pos[1] < up[1] and \
+            pos[2] > low[2] and pos[2] < up[2]
+
 ######################################################3333
 # step (action) returns next_state, reward, done
 # action is a numpy vector in R^4 (thrust, roll, pitch, yaw)
@@ -148,8 +156,8 @@ def step(action):
     eul = np.array(eul)
     next_state = np.concatenate((pos, eul, pos-last_pos, eul-last_eul, goal - pos), axis=0)
     print next_state
-    if (pos[2] < floor_collision_threshold):
-        print "collision with ground: ending simulation"
+    if not check_pos_in_bound(pos):
+        print "collision with boundaries: ending simulation"
         stop_sim()
         return next_state, -100.0, True
     # reward 
