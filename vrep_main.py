@@ -108,7 +108,7 @@ class VREPEnvironment(object):
         self.connection.connect()
         self.quadcopter_sim = QuadricopterSimulation(connection=self.connection)
 
-        self.env_bound = ((-10.0, -10.0, 0.09), (10.0, 10.0, 10.0))
+        self.env_bound = ((-5.0, -5.0, 0.09), (5.0, 5.0, 5.0))
         self.floor_collision_threshold = 0.09
         self.goal = None 
         self.timestep = 0
@@ -118,7 +118,8 @@ class VREPEnvironment(object):
         self.last_eul = None
 
     def generate_new_goal(self):
-        return np.array([2.0, 2.0, 1.0])
+        # return np.array([2.0, 2.0, 1.0])
+        return np.concatenate((np.random.rand(2) * 10 - 5, np.random.rand(1) * 5), axis=0) 
 
     def reset(self):
         _ = vrep.simxStopSimulation(self.connection.client_id, vrep.simx_opmode_blocking)
@@ -163,6 +164,7 @@ if __name__ == "__main__":
     n_iterations = 10
     for i in xrange(n_iterations):
         env.reset()
+        print env.goal
         for step in xrange(n_max_steps):
             state, reward, done = env.step([5.34, 0.0, 0.0, 0.0])
             print state
