@@ -31,3 +31,13 @@ int ikGroupHash42Handle = simGetIkGroupHandle("iikGroup#42")
 # python remote api client
 res, c1handle = vrep.simxGetObjectHandle(client_id, "Cuboid1", vrep.simx_opmode_blocking)
 
+# update I removed almost all from remoteApiConnections.txt
+# I looked at vrep.sh to see what it does 
+#	essentially just passes params from itself to vrep executable
+#	but it also is modifying LD_LIBRARY_PATH so executable can find
+#	its statically linked libaries.
+#	I was able to replicate the exact same behavior in a python script 
+#	added benefit of being able to spawn multiple v-rep instances 
+
+# also change this to true in system/usrset.txt
+doNotShowCrashRecoveryMessage = true
