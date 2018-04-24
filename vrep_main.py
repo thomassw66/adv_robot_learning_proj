@@ -149,7 +149,7 @@ class VREPEnvironment(object):
         next_state = np.concatenate((self.pos, self.eul, dr, dw, relative_goal), axis=0)
         if not self.check_point_in_bounds(self.pos):
             return next_state, -100.0, True
-        reward = 1.0 / (dist_to_goal + 0.1)
+        reward = np.linalg.norm(np.dot(dr, relative_goal)) - np.linalg.norm(dr)
         return next_state, reward, False # timestep > max_timesteps
 
     def close(self):
