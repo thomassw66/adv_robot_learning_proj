@@ -118,8 +118,8 @@ class VREPEnvironment(object):
         self.last_eul = None
 
     def generate_new_goal(self):
-        # return np.array([2.0, 2.0, 1.0])
-        return np.concatenate((np.random.rand(2) * 10 - 5, np.random.rand(1) * 5), axis=0) 
+        return np.array([2.0, 2.0, 1.0])
+        # return np.concatenate((np.random.rand(2) * 10 - 5, np.random.rand(1) * 5), axis=0) 
 
     def reset(self):
         _ = vrep.simxStopSimulation(self.connection.client_id, vrep.simx_opmode_blocking)
@@ -147,9 +147,19 @@ class VREPEnvironment(object):
         relative_goal = self.goal - self.pos 
         dist_to_goal = np.linalg.norm(relative_goal)
         next_state = np.concatenate((self.pos, self.eul, dr, dw, relative_goal), axis=0)
+        magnitude_vel = np.linalg.norm(dr)
+
         if not self.check_point_in_bounds(self.pos):
-            return next_state, -100.0, True
-        reward = np.linalg.norm(np.dot(dr, relative_goal)) - np.linalg.norm(dr)
+            return next_state, -10000.0, True
+        # reward function will be 
+        #       positive reward for moving in direction of the goal and a negative reward for moving away??
+        #       reward for staying alive
+        
+        # projection of our velocity onto the vector relative to goal
+        reward = -10.0 * dist_to_goal ** 2.0 \
+                - 100.0 * np.sqrt( np.square(self.eul[0]) + np.square(self.eul[1]) ) \
+                - 10.0 * magnitude_vel \
+                + 3000.0
         return next_state, reward, False # timestep > max_timesteps
 
     def close(self):
